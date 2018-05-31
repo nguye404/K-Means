@@ -3,6 +3,7 @@ import operator
 from collections import OrderedDict
 
 import numpy as np
+import copy
 
 def processFile(filename, k):
     inFile = open(filename, "r")
@@ -10,7 +11,7 @@ def processFile(filename, k):
     D = OrderedDict()
     currentLine = inFile.readline()
     currentLine = inFile.readline()
-    i = 1
+    i = 0
     listCompactness = []
     listLength = []
     listWidth = []
@@ -33,12 +34,11 @@ def processFile(filename, k):
         currentLine = inFile.readline()
 
     #X = np.array(list(zip(range(listCompactness), listLength, listWidth)))
-    print(listCompactness)
     
     maxCompactness = float(max(listCompactness))
     maxLength = float(max(listLength))
     maxWidth = float(max(listWidth))
-    print(max(listCompactness), maxLength, maxWidth)
+    print("max: ", max(listCompactness), maxLength, maxWidth)
     
     # X coordinates of random centroids
     C_x = np.random.uniform(0.0, maxCompactness, size=k)
@@ -49,6 +49,54 @@ def processFile(filename, k):
     
     C = np.array(list(zip(C_x, C_y, C_z)), dtype=np.float)
     print(C)
+
+    # to store the value of centroids when it updates
+    C_prev = np.zeros(C.shape)
+    print("C_prev", C_prev)
+
+    dictSizeCluster = {}
+    new = {}
+    xyz = {} # key = centroid, value = sum of all distances to that centroid
+    for i in range(0, k):
+        dictSizeCluster[i] = 0
+        new[i] = 0
+        xyz[i] = (0, 0, 0)
+
+    time = 0
+    clusterSizeChange = True
+    while(clusterSizeChange == True or time == 1000000):
+        for i in range(0, len(D)):
+            distDict = {}
+            for j in range(0, k):
+                print(float(C[j][0])**2)
+                distDict[j] = (C[j][0] - D[i][0])**2 + (C[j][1] - D[i][1])**2 + (C[j][2] - D[i][2])**2
+            C_min = min(distDict.items(), key=operator.itemgetter(1))[0]
+            new[C_min] = new[C_min] + 1
+            xyz[C_min] = (xyz[C_min][0] + D[i][0], xyz[C_min][1] + D[i][1],
+                          xyz[C_min][2] + D[i][2])
+            
+        clusterSizeChange = compareClusterSize(dictSizeCluster, new, k)
+
+        # Storing the old centroid values
+        C_old = deepcopy(C)
+        
+        # update the old sizes of clusters with the new ones since it changes
+        if (clusterSizeChange == True):
+            dictSizeCluster = copy.deepcopy(new)
+
+        # create a new centroid
+        for i in range(0, k):
+            C[i] = [xyz[i][0] / new[i], xyz[i][1] / new[i], xyz[i][2] / new[i]]
+            print(C[i])
+
+
+
+def compareClusterSize(prev, new, k):
+    for i in range(0, k):
+        if prev[i] != new[i]:
+            return True
+    return False
+        
 
 processFile("seeds_dataset.txt", 3)
 
