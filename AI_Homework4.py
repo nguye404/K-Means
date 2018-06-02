@@ -34,7 +34,7 @@ def processFile(filename, k):
 
     #X = np.array(list(zip(range(listCompactness), listLength, listWidth)))
 
-    print("lee(D) = ", len(D))
+    print("length of dataset D = ", len(D))
     
     maxCompactness = float(max(listCompactness))
     maxLength = float(max(listLength))
@@ -59,7 +59,7 @@ def processFile(filename, k):
         
     C = np.array(C)
     #C = np.array(list(zip(C_x, C_y, C_z)), dtype=np.float)
-    print("C", C)
+    print("initial centroids = ", C)
 
 
 ##    # normalize x, y, z so there is no dominant in 1D
@@ -70,9 +70,6 @@ def processFile(filename, k):
 
 ##    print("\nnormalize C", C)
 
-    # to store the value of centroids when it updates
-    C_prev = np.zeros(C.shape)
-    print("C_prev", C_prev)
 
     dictSizeCluster = {}
     new = {}
@@ -99,11 +96,8 @@ def processFile(filename, k):
             #print("C_min[", C_min, "] = ", new[C_min])
             xyz[C_min] = (xyz[C_min][0] + D[i][0], xyz[C_min][1] + D[i][1],
                           xyz[C_min][2] + D[i][2])
-        print("size:", new)    
+        print("Iteration ", time, "\t Size of each cluster = ", new)    
         clusterSizeChange = compareClusterSize(dictSizeCluster, new, k)
-
-        # Storing the old centroid values
-        C_old = copy.deepcopy(C)
         
         # update the old sizes of clusters with the new ones since it changes
         if (clusterSizeChange == True):
@@ -116,14 +110,14 @@ def processFile(filename, k):
             #print("C[", i, "]", C[i])
             new[i] = 0
             xyz[i] = (0, 0, 0)
-        print("\n\n")
+        print("\n")
 
-    print(C)
+    print("center of each cluster ", C)
 
     if not clusterSizeChange:
-        print("****Converge****")
+        print("\n****Converge****")
     else:
-        print("****Not converge****")
+        print("\n****Not converge****")
 
 
 def compareClusterSize(prev, new, k):
