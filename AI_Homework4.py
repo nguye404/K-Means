@@ -1,7 +1,6 @@
 import sys
 import operator
 from collections import OrderedDict
-
 import numpy as np
 import copy
 
@@ -20,8 +19,8 @@ def processFile(filename, k):
         currentLine = currentLine.rstrip()
         curList = currentLine.split()
 
-        # store (compactness, length, and width) as value so the key doesn't 
-        # get replaced when it has same compactness
+        # store (compactness, length, and width) as value so the key  
+        # doesn't get replaced when it has same compactness
         D[i] = (float(curList[2]), float(curList[3]), float(curList[4]))
         listCompactness.append(curList[2])
         listLength.append(curList[3])
@@ -32,21 +31,12 @@ def processFile(filename, k):
         # read the next line in the file    
         currentLine = inFile.readline()
 
-    #X = np.array(list(zip(range(listCompactness), listLength, listWidth)))
-
     print("length of dataset D = ", len(D))
     
     maxCompactness = float(max(listCompactness))
     maxLength = float(max(listLength))
     maxWidth = float(max(listWidth))
-    print("max: ", max(listCompactness), maxLength, maxWidth)
-    
-##    # X coordinates of random centroids
-##    C_x = np.random.uniform(0.0, maxCompactness, size=k)
-##    # Y coordinates of random centroids
-##    C_y = np.random.uniform(0, maxLength, size=k)
-##    # Z coordinates of random centroids
-##    C_z = np.random.uniform(0, maxWidth, size=k)
+    print("max in each dimenstion: ", max(listCompactness), maxLength, maxWidth)
 
     # pick k random points in dataset D and make them centroids
     randIndex = -1
@@ -58,17 +48,7 @@ def processFile(filename, k):
             C.append(coordinate)
         
     C = np.array(C)
-    #C = np.array(list(zip(C_x, C_y, C_z)), dtype=np.float)
     print("initial centroids = ", C)
-
-
-##    # normalize x, y, z so there is no dominant in 1D
-##    for i in range(0,k):
-##        C[i][0] = C[i][0] / maxCompactness
-##        C[i][1] = C[i][1] / maxLength
-##        C[i][2] = C[i][2] / maxWidth
-
-##    print("\nnormalize C", C)
 
 
     dictSizeCluster = {}
