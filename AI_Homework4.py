@@ -52,11 +52,17 @@ def processFile(filename, k):
 
 
     dictSizeCluster = {}
-    new = {}
-    xyz = {} # key = centroid, value = sum of all distances to that centroid
+
+    # key = centroid (1,2,3,...,n), value = size of each cluster
+    clusterSize = {}
+
+    # key = centroid, value = sum of all distances to that centroid
+    #                         (total value for each attribute)
+    xyz = {}
+    
     for i in range(0, k):
         dictSizeCluster[i] = 0
-        new[i] = 0
+        clusterSize[i] = 0
         xyz[i] = (0, 0, 0)
 
     time = 0
@@ -65,30 +71,28 @@ def processFile(filename, k):
         time = time + 1
         for i in range(0, len(D)):
             distDict = {}
-            #print(D[i][0], "  ", D[i][1],"  ", D[i][2])
-            for j in range(0, k):
-                #print(float(C[j][0])**2)
-                #print(C[j][0], "  ", C[j][1],"  ", C[j][2])   
-                distDict[j] = (C[j][0] - D[i][0])**2 + (C[j][1] - D[i][1])**2 + (C[j][2] - D[i][2])**2
-                #print(distDict[j])
+            for j in range(0, k):   
+                distDict[j] = (C[j][0] - D[i][0])**2 + \
+                              (C[j][1] - D[i][1])**2 + \
+                              (C[j][2] - D[i][2])**2
             C_min = min(distDict.items(), key=operator.itemgetter(1))[0]
-            new[C_min] = new[C_min] + 1
-            #print("C_min[", C_min, "] = ", new[C_min])
+            clusterSize[C_min] = clusterSize[C_min] + 1
             xyz[C_min] = (xyz[C_min][0] + D[i][0], xyz[C_min][1] + D[i][1],
                           xyz[C_min][2] + D[i][2])
-        print("Iteration ", time, "\t Size of each cluster = ", new)    
-        clusterSizeChange = compareClusterSize(dictSizeCluster, new, k)
+            
+        print("Iteration ", time, "\t Size of each cluster = ", clusterSize)    
+        clusterSizeChange = compareClusterSize(dictSizeCluster, clusterSize, k)
         
         # update the old sizes of clusters with the new ones since it changes
         if (clusterSizeChange == True):
-            dictSizeCluster = copy.deepcopy(new)
+            dictSizeCluster = copy.deepcopy(clusterSize)
 
         # create a new centroid
         for i in range(0, k):
-            #print(i, "cluster size = ", new[i])
-            C[i] = [xyz[i][0] / new[i], xyz[i][1] / new[i], xyz[i][2] / new[i]]
-            #print("C[", i, "]", C[i])
-            new[i] = 0
+            C[i] = [xyz[i][0] / clusterSize[i], xyz[i][1] / clusterSize[i],
+                    xyz[i][2] / clusterSize[i]]
+            # set the following values back to the original for calculation
+            clusterSize[i] = 0
             xyz[i] = (0, 0, 0)
         print("\n")
 
@@ -100,12 +104,17 @@ def processFile(filename, k):
         print("\n****Not converge****")
 
 
+
+
+# compare if the size of each cluster has changed or not
 def compareClusterSize(prev, new, k):
     for i in range(0, k):
         if prev[i] != new[i]:
             return True
     return False
         
+
+
 
 processFile("seeds_dataset.txt", 3)
 
